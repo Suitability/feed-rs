@@ -1,6 +1,6 @@
 use std::io::BufRead;
 
-use mime::Mime;
+use mime_serde_shim::Wrapper as Mime;
 
 use crate::model::{Category, Content, Entry, Feed, FeedType, Generator, Image, Link, MediaObject, Person, Text};
 use crate::parser::mediarss;
@@ -113,7 +113,7 @@ fn handle_content<R: BufRead>(element: Element<R>) -> ParseFeedResult<Option<Con
                 .map(|body| {
                     let mut content = Content::default();
                     content.body = Some(body.content);
-                    content.content_type = mime::TEXT_XML;
+                    content.content_type = Mime(mime::TEXT_XML);
                     Some(content)
                 })
                 // The XML is required for an XML content element
@@ -293,7 +293,7 @@ pub(crate) fn handle_text<R: BufRead>(element: Element<R>) -> ParseFeedResult<Op
         .children_as_string()?
         .map(|content| {
             let mut text = Text::new(content);
-            text.content_type = mime;
+            text.content_type = Mime(mime);
             Some(text)
         })
         // Need the text for a text element

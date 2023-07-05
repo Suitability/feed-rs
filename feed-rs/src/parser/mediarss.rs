@@ -1,7 +1,7 @@
 use std::io::BufRead;
 use std::time::Duration;
 
-use mime::Mime;
+use mime_serde_shim::Wrapper as Mime;
 
 use crate::model::{Image, MediaCommunity, MediaContent, MediaCredit, MediaObject, MediaRating, MediaText, MediaThumbnail, Text};
 use crate::parser::util::{if_ok_then_some, if_some_then, parse_npt};
@@ -204,7 +204,7 @@ fn handle_media_text<R: BufRead>(element: Element<R>) -> Option<MediaText> {
     element.child_as_text().map(|t| {
         // Parse out the actual text of this element
         let mut text = Text::new(t);
-        text.content_type = mime.map_or(mime::TEXT_PLAIN, |m| m);
+        text.content_type = mime.map_or(Mime(mime::TEXT_PLAIN), |m| Mime(m));
         let mut media_text = MediaText::new(text);
 
         // Add the time boundaries if we found them
@@ -257,8 +257,8 @@ fn handle_text<R: BufRead>(element: Element<R>) -> ParseFeedResult<Option<Text>>
     let type_attr = element.attributes.iter().find(|a| &a.name == "type").map_or("plain", |a| a.value.as_str());
 
     let mime = match type_attr {
-        "plain" => Ok(mime::TEXT_PLAIN),
-        "html" => Ok(mime::TEXT_HTML),
+        "plain" => Ok(Mime(mime::TEXT_PLAIN)),
+        "html" => Ok(Mime(mime::TEXT_HTML)),
 
         // Unknown content type
         _ => Err(ParseFeedError::ParseError(ParseErrorKind::UnknownMimeType(type_attr.into()))),

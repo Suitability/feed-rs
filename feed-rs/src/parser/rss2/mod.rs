@@ -1,7 +1,7 @@
 use std::io::BufRead;
 
 use chrono::{DateTime, Utc};
-use mime::Mime;
+use mime_serde_shim::Wrapper as Mime;
 
 use crate::model::{Category, Content, Entry, Feed, FeedType, Generator, Image, Link, MediaContent, MediaObject, Person, Text};
 use crate::parser::atom;
@@ -187,7 +187,7 @@ fn handle_content_encoded<R: BufRead>(element: Element<R>) -> ParseFeedResult<Op
         } else {
             Some(Content {
                 body: Some(string),
-                content_type: mime::TEXT_HTML,
+                content_type: Mime(mime::TEXT_HTML),
                 src,
                 ..Default::default()
             })
